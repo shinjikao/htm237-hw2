@@ -46,7 +46,12 @@ function save(){
   // 把 <span> 裡的項目（一個物件：{text:文字, isDone:是否被完成}）放進陣列裡
   mainUl.find('li').each(function(){
     // TODO: 修改此處，把「已完成」與否一併存入。
-    arr.push($(this).find('span').text());
+    //arr.push($(this).find('span').text());
+    
+    arr.push({ text  : $(this).find('span').text() ,
+               isDone: $(this).hasClass('is-done')})  ;       
+             
+             
   });
 
   // 把陣列轉成 JSON 字串後存進 localStorage
@@ -61,14 +66,30 @@ function load(){
   // 從 localStorage 裡讀出陣列 JSON 字串
   // 把 JSON 字串轉回陣列
   var arr = JSON.parse( localStorage.todoItems ), i, li;
-
+ console.log(arr);
   // 對於陣列裡的每一個項目，插入回 mainUl 裡。
   for(i=0; i<arr.length; i+=1){
     li = $(tmpl);
     // TODO: 修改此處，讀取「已完成」與否，來決定是否要加上 `is-done`。
-    li.appendTo(mainUl).find('span').text(arr[i]);
+    console.log(arr[i].text);
+    console.log(arr[i].isDone);
+
+
+
+    if(arr[i].isDone==true)
+    {
+
+        li.appendTo(mainUl).find('span').text(arr[i].text);  
+        li.addClass('is-done');
+    }
+
+
+  
+    
+    
   }
 }
+
 
 // 課堂練習一
 // 讓按鈕可以拖來拖去
@@ -79,16 +100,29 @@ connected.sortable({
 
 // 課堂練習二
 // 拖曳時顯示隱藏兩個選單
-mainUl.on('sortstart', function(){
+mainUl.on('sortstart',function(){
   placeholder.addClass('is-dragging');
-}).on('sortstop', function(){
+}).on('sortstop',function(){
   placeholder.removeClass('is-dragging');
   save();
 });
 
+
+
+
+
+
 // 課堂練習三
 // 刪除項目
 deleteUl.on('sortreceive', function(e, ui){
+  ui.item.remove();
+  save();
+});
+
+doneUl.on('sortreceive', function(e , ui ){
+  li = $(tmpl);
+  li.addClass('is-done');
+  li.appendTo(mainUl).find('span').text(ui.item.find('span').text());
   ui.item.remove();
   save();
 });
